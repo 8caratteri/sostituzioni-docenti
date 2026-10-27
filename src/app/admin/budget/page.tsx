@@ -12,7 +12,7 @@ export default async function BudgetPage() {
         <h1>Budget e tariffe</h1>
         <Link href="/admin">Torna all&apos;elenco</Link>
       </div>
-      <p className="muted small">
+      <p className="page-lead">
         Il budget è un tetto in euro. Le assegnazioni in attesa o confermate
         impegnano l&apos;importo; se rifiutate o scadute, torna disponibile.
       </p>

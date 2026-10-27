@@ -16,7 +16,7 @@ export default async function DocentePage() {
   return (
     <>
       <h1>Le mie ore</h1>
-      <p className="muted small">
+      <p className="page-lead">
         Accetta entro 2 ore prima dell&apos;inizio. Se non accetti in tempo,
         l&apos;assegnazione scade e lo slot torna libero.
       </p>

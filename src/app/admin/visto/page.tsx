@@ -17,27 +17,27 @@ export default async function VistoPage() {
         <h1>Da vistare</h1>
         <Link href="/admin">Torna all&apos;elenco</Link>
       </div>
-      <p className="muted small">
+      <p className="page-lead">
         Approva o rifiuta gli slot creati dalla segreteria. Solo dopo il visto
         si può assegnare un docente.
       </p>
 
       {awaiting.length === 0 && (
-        <p className="muted">Nessuno slot in attesa di visto.</p>
+        <p className="empty-state">Nessuno slot in attesa di visto.</p>
       )}
 
       <div className="list-stack">
         {awaiting.map((s) => (
           <div key={s.id} className="card">
-            <div style={{ fontWeight: 650 }}>
+            <div style={{ fontWeight: 700, color: "var(--ink)" }}>
               {s.date} · {formatTimeRange(s.start_time, s.end_time)} ·{" "}
               {s.classe_name || "—"} · {s.sede_name || "—"}
             </div>
-            <div className="muted small" style={{ marginTop: "0.25rem" }}>
+            <div className="muted small" style={{ marginTop: "0.3rem" }}>
               {formatEuro(s.importo_eur)} · creato da {s.creator_name}
               {s.motivo ? ` · ${s.motivo}` : ""}
             </div>
-            <div style={{ marginTop: "0.45rem" }}>
+            <div style={{ marginTop: "0.55rem" }}>
               <span className="badge badge-warn">In attesa di visto</span>
             </div>
 

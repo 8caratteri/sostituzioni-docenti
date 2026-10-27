@@ -31,9 +31,9 @@ export function SlotActions({
     <div className="actions-row">
       <div className="assign-cell">
         {lockedConfirmed ? (
-          <span className="muted small">Bloccato (accettato)</span>
+          <span className="locked-note">Bloccato (accettato)</span>
         ) : slot.visa_status !== "approved" ? (
-          <span className="muted small">In attesa di visto</span>
+          <span className="locked-note">In attesa di visto</span>
         ) : hasActive ? (
           <form
             onSubmit={(e) => {

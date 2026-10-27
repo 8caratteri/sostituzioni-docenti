@@ -12,7 +12,7 @@ export default async function AdminSlotsPage() {
   return (
     <>
       <h1>Elenco slot</h1>
-      <p className="muted small">
+      <p className="page-lead">
         Gli slot creati dalla segreteria restano in attesa di visto. Dopo il
         visto puoi assegnare un docente disponibile. Assegna / Rimuovi fino a 10
         minuti prima; se assegni a meno di 2 ore dall&apos;inizio è
@@ -20,7 +20,7 @@ export default async function AdminSlotsPage() {
       </p>
 
       {groups.length === 0 && (
-        <p className="muted">Nessuno slot ancora. Crea un nuovo slot.</p>
+        <p className="empty-state">Nessuno slot ancora. Crea un nuovo slot.</p>
       )}
 
       {groups.map((g) => (

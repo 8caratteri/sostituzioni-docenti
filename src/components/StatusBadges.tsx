@@ -18,7 +18,7 @@ export function AssignmentBadge({
   isUfficio?: number | null;
 }) {
   if (!status) {
-    return <span className="status-plain">Libero</span>;
+    return <span className="badge badge-free">Libero</span>;
   }
   if (status === "pending") {
     return <span className="badge badge-warn">In attesa docente</span>;

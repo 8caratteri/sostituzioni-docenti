@@ -16,25 +16,33 @@ export default async function DocenteLayout({
 
   return (
     <>
-      <header className="docente-nav">
-        <nav style={{ display: "flex", gap: "1rem" }}>
-          <Link href="/docente">Le mie ore</Link>
-          <Link href="/docente/aperti">Slot aperti</Link>
-        </nav>
-        <div style={{ display: "flex", gap: "0.85rem", alignItems: "center" }}>
-          <form
-            action={async () => {
-              "use server";
-              await signOut({ redirectTo: "/login" });
-            }}
-          >
-            <button type="submit" className="linkish">
-              Esci
-            </button>
-          </form>
-          <span className="user-pill">{session.user.name}</span>
-        </div>
-      </header>
+      <div className="app-chrome">
+        <header className="docente-nav">
+          <div className="brand-block">
+            <Link href="/docente" className="brand-name">
+              Sostituzioni
+            </Link>
+            <span className="brand-sub">CPIA · docente</span>
+          </div>
+          <nav className="docente-nav-links">
+            <Link href="/docente">Le mie ore</Link>
+            <Link href="/docente/aperti">Slot aperti</Link>
+          </nav>
+          <div className="docente-nav-right">
+            <form
+              action={async () => {
+                "use server";
+                await signOut({ redirectTo: "/login" });
+              }}
+            >
+              <button type="submit" className="linkish">
+                Esci
+              </button>
+            </form>
+            <span className="user-pill">{session.user.name}</span>
+          </div>
+        </header>
+      </div>
       <main>{children}</main>
     </>
   );

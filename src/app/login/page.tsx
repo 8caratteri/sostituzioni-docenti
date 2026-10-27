@@ -14,6 +14,7 @@ export default async function LoginPage() {
   return (
     <div className="login-page">
       <div className="login-card">
+        <span className="login-kicker">CPIA</span>
         <h1>Sostituzioni docenti</h1>
         <p className="muted">
           Accedi per gestire o confermare le ore di sostituzione.
@@ -21,7 +22,7 @@ export default async function LoginPage() {
 
         {demo && (
           <>
-            <p className="small" style={{ marginTop: "1rem" }}>
+            <p className="small" style={{ marginTop: "1.15rem", fontWeight: 650 }}>
               Modalità prova — scegli un utente:
             </p>
             <div className="demo-list">
