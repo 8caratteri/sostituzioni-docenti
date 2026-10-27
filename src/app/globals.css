@@ -32,10 +32,9 @@
   --shadow-sm: 0 1px 2px rgba(28, 40, 52, 0.04);
   --shadow: 0 4px 18px rgba(28, 40, 52, 0.06);
   --shadow-nav: 0 1px 0 var(--line), 0 8px 24px rgba(28, 40, 52, 0.04);
-  /* Font: Geist (Next 15 create-next-app default). Screenshots = clean UI
-     sans only; no named font in handoffs. Source Sans/Serif was a guess. */
-  --font: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  /* Nunito: geometric sans più “rotondo” (richiesta utente). */
+  --font: var(--font-sans), Nunito, ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-sans), Nunito, ui-sans-serif, system-ui, sans-serif;
 }
 
 * {
