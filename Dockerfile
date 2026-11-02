@@ -27,16 +27,22 @@ ENV HOSTNAME=0.0.0.0
 ENV SQLITE_PATH=/data/sostituzioni.sqlite
 
 COPY package.json package-lock.json ./
-RUN npm ci --omit=dev && npm cache clean --force
+# typescript in dependencies: next.config.ts non deve installare TS a runtime
+# (altrimenti healthcheck :3000 fallisce durante npm i)
+RUN npm ci --omit=dev \
+  && test -d node_modules/typescript \
+  && npm cache clean --force
 
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/next.config.ts ./
+COPY --from=builder /app/tsconfig.json ./
 COPY --from=builder /app/package.json ./
 
 # Nessun dbsetup.js — avvio solo Next.
 RUN mkdir -p /data \
-  && test ! -e /app/dbsetup.js
+  && test ! -e /app/dbsetup.js \
+  && test -d node_modules/typescript
 
 EXPOSE 3000
 # Explicit: bind 0.0.0.0 (richiesto dal proxy Fly). Niente shell npm script.

@@ -27,11 +27,11 @@ primary_region = "ams"
   min_machines_running = 1
   processes = ["app"]
 
-  # Next cold start può superare 30s al primo boot
+  # Next + caricamento next.config.ts: grace lungo (evita fail durante boot)
   [[http_service.checks]]
     interval = "30s"
     timeout = "10s"
-    grace_period = "120s"
+    grace_period = "240s"
     method = "GET"
     path = "/login"
 
