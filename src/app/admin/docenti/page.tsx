@@ -37,7 +37,7 @@ export default async function DocentiPage() {
         <div className="mgmt-toolbar-row">
           <label>
             Nome
-            <input name="name" required placeholder="Cognome Nome" />
+            <input name="name" type="text" required placeholder="Cognome Nome" />
           </label>
           <label>
             Email

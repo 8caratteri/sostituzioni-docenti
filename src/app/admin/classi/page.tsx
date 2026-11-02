@@ -35,7 +35,7 @@ export default async function ClassiPage() {
         <div className="mgmt-toolbar-row">
           <label className="mgmt-grow">
             Nome
-            <input name="name" required placeholder="es. Aulla" />
+            <input name="name" type="text" required placeholder="es. Aulla" />
           </label>
           <div className="mgmt-toolbar-action">
             <button type="submit" className="btn-primary">
