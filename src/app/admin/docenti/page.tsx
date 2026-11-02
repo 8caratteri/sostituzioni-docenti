@@ -45,10 +45,24 @@ export default async function DocentiPage() {
       <div className="docenti-grid">
         {docenti.map((d) => (
           <div key={d.id} className="card docente-card">
-            <Link href={`/admin/docenti/${d.id}`} className="docente-scheda-link">
-              <strong>{d.name}</strong>
-            </Link>
-            <div className="muted small">{d.email}</div>
+            <div className="docente-card-head">
+              <div>
+                <Link
+                  href={`/admin/docenti/${d.id}`}
+                  className="docente-scheda-link"
+                >
+                  <strong>{d.name}</strong>
+                </Link>
+                <div className="muted small">{d.email}</div>
+              </div>
+              <ConfirmDelete
+                action={actionDeleteDocente}
+                hiddenFields={{ id: d.id }}
+                tooltip="Disattiva docente"
+                title="Disattivare questo docente?"
+                confirmLabel="Disattiva"
+              />
+            </div>
             <form action={actionSetRecupero} className="inline-recupero">
               <input type="hidden" name="user_id" value={d.id} />
               <label>
@@ -65,13 +79,6 @@ export default async function DocentiPage() {
                 Salva
               </button>
             </form>
-            <ConfirmDelete
-              action={actionDeleteDocente}
-              hiddenFields={{ id: d.id }}
-              tooltip="Disattiva docente"
-              title="Disattivare questo docente?"
-              confirmLabel="Disattiva"
-            />
           </div>
         ))}
       </div>
