@@ -56,7 +56,6 @@ export function SlotActions({
 
   const selected = candidati.find((c) => c.id === docenteId);
   const selectedUnavailable = !!selected && !selected.available;
-  /** Solo «Assegna comunque» se nessuno in disp. oppure se ha scelto fuori disp. */
   const useComunque = noneAvailable || selectedUnavailable;
 
   function assign() {
@@ -76,26 +75,151 @@ export function SlotActions({
   }
 
   const deleteBtn = canDelete ? (
-    <ConfirmDelete
-      action={actionDeleteSlot}
-      hiddenFields={{ slot_id: slot.id }}
-      tooltip="Elimina slot"
-      title="Eliminare questo slot?"
-    />
+    <div className="azioni-delete">
+      <ConfirmDelete
+        action={actionDeleteSlot}
+        hiddenFields={{ slot_id: slot.id }}
+        tooltip="Elimina slot"
+        title="Eliminare questo slot?"
+      />
+    </div>
   ) : null;
 
+  let body: React.ReactNode;
+
   if (slot.visa_status === "rejected") {
-    return (
-      <div className="actions-row actions-inline-end">
-        <span className="locked-note">Visto rifiutato</span>
-        {deleteBtn}
+    body = <span className="locked-note">Visto rifiutato</span>;
+  } else if (lockedConfirmed) {
+    body = <span className="locked-note">Bloccato (accettato)</span>;
+  } else if (hasActive) {
+    body = (
+      <div className="assigned-actions">
+        <span className="small">
+          {slot.docente_name}
+          {slot.is_recupero ? " · recupero" : ""}
+        </span>
+        {canAssign && (
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              const fd = new FormData(e.currentTarget);
+              start(async () => {
+                try {
+                  await actionRemove(fd);
+                } catch (err) {
+                  alert(err instanceof Error ? err.message : "Errore");
+                }
+              });
+            }}
+          >
+            <input type="hidden" name="slot_id" value={slot.id} />
+            <button type="submit" className="btn-secondary" disabled={pending}>
+              Rimuovi assegnazione
+            </button>
+          </form>
+        )}
       </div>
     );
+  } else if (canAssign) {
+    body = (
+      <div className="assign-body">
+        {proposte.length > 0 && (
+          <div className="proposte-block">
+            {proposte.map((p) => (
+              <form
+                key={p.id}
+                className="proposta-row"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const fd = new FormData(e.currentTarget);
+                  start(async () => {
+                    try {
+                      await actionAcceptProposta(fd);
+                    } catch (err) {
+                      alert(err instanceof Error ? err.message : "Errore");
+                    }
+                  });
+                }}
+              >
+                <input type="hidden" name="proposta_id" value={p.id} />
+                <span className="small">
+                  Proposta: <strong>{p.docente_name}</strong>
+                </span>
+                <button
+                  type="submit"
+                  className="btn-primary"
+                  disabled={pending}
+                >
+                  Accetta proposta
+                </button>
+              </form>
+            ))}
+          </div>
+        )}
+
+        {noneAvailable ? (
+          <p className="candidati-empty">
+            Nessun docente disponibile per questo plesso, fascia e orario.
+          </p>
+        ) : null}
+
+        <label className="assign-select-label">
+          Docente
+          <select
+            value={docenteId}
+            onChange={(e) => setDocenteId(e.target.value)}
+            aria-label="Scegli docente"
+          >
+            <option value="">Scegli docente…</option>
+            {noneAvailable ? (
+              candidati.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {optionLabel(c)}
+                </option>
+              ))
+            ) : (
+              <>
+                <optgroup label="Disponibili">
+                  {available.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {optionLabel(c)}
+                    </option>
+                  ))}
+                </optgroup>
+                {unavailable.length > 0 && (
+                  <optgroup label="Non disponibili in questa ora">
+                    {unavailable.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {optionLabel(c)}
+                      </option>
+                    ))}
+                  </optgroup>
+                )}
+              </>
+            )}
+          </select>
+        </label>
+
+        <div className="assign-btns-row">
+          <button
+            type="button"
+            className={useComunque ? "btn-secondary" : "btn-primary"}
+            disabled={pending || !docenteId}
+            onClick={assign}
+          >
+            {useComunque ? "Assegna comunque" : "Assegna"}
+          </button>
+        </div>
+      </div>
+    );
+  } else {
+    body = <span className="muted small">—</span>;
   }
 
   return (
-    <div className="actions-row actions-elenco">
-      <div className="assign-cell">
+    <div className="azioni-box">
+      {deleteBtn}
+      <div className="azioni-content">
         {(slot.last_refuse_motivo || slot.refuse_motivo) && (
           <div className="refuse-motivo">
             Motivo rifiuto
@@ -105,156 +229,7 @@ export function SlotActions({
             : {slot.last_refuse_motivo || slot.refuse_motivo}
           </div>
         )}
-
-        {lockedConfirmed ? (
-          <div className="actions-inline-end">
-            <span className="locked-note">Bloccato (accettato)</span>
-            {deleteBtn}
-          </div>
-        ) : hasActive ? (
-          <div className="assigned-actions">
-            <div className="actions-inline-end">
-              <span className="small">
-                {slot.docente_name}
-                {slot.is_recupero ? " · recupero" : ""}
-              </span>
-              {deleteBtn}
-            </div>
-            {canAssign && (
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  const fd = new FormData(e.currentTarget);
-                  start(async () => {
-                    try {
-                      await actionRemove(fd);
-                    } catch (err) {
-                      alert(err instanceof Error ? err.message : "Errore");
-                    }
-                  });
-                }}
-              >
-                <input type="hidden" name="slot_id" value={slot.id} />
-                <button
-                  type="submit"
-                  className="btn-secondary"
-                  disabled={pending}
-                >
-                  Rimuovi assegnazione
-                </button>
-              </form>
-            )}
-          </div>
-        ) : canAssign ? (
-          <div className="assign-panel">
-            <div className="assign-panel-head">
-              <div className="assign-panel-head-main">
-                {proposte.length > 0 && (
-                  <div className="proposte-block">
-                    {proposte.map((p) => (
-                      <form
-                        key={p.id}
-                        className="proposta-row"
-                        onSubmit={(e) => {
-                          e.preventDefault();
-                          const fd = new FormData(e.currentTarget);
-                          start(async () => {
-                            try {
-                              await actionAcceptProposta(fd);
-                            } catch (err) {
-                              alert(
-                                err instanceof Error ? err.message : "Errore"
-                              );
-                            }
-                          });
-                        }}
-                      >
-                        <input type="hidden" name="proposta_id" value={p.id} />
-                        <span className="small">
-                          Proposta: <strong>{p.docente_name}</strong>
-                        </span>
-                        <button
-                          type="submit"
-                          className="btn-primary"
-                          disabled={pending}
-                        >
-                          Accetta proposta
-                        </button>
-                      </form>
-                    ))}
-                  </div>
-                )}
-                {noneAvailable ? (
-                  <p className="candidati-empty">
-                    Nessun docente disponibile per questo plesso, fascia e
-                    orario.
-                  </p>
-                ) : null}
-              </div>
-              {deleteBtn}
-            </div>
-
-            <label className="assign-select-label">
-              Docente
-              <select
-                value={docenteId}
-                onChange={(e) => setDocenteId(e.target.value)}
-                aria-label="Scegli docente"
-              >
-                <option value="">Scegli docente…</option>
-                {noneAvailable ? (
-                  candidati.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {optionLabel(c)}
-                    </option>
-                  ))
-                ) : (
-                  <>
-                    <optgroup label="Disponibili">
-                      {available.map((c) => (
-                        <option key={c.id} value={c.id}>
-                          {optionLabel(c)}
-                        </option>
-                      ))}
-                    </optgroup>
-                    {unavailable.length > 0 && (
-                      <optgroup label="Non disponibili in questa ora">
-                        {unavailable.map((c) => (
-                          <option key={c.id} value={c.id}>
-                            {optionLabel(c)}
-                          </option>
-                        ))}
-                      </optgroup>
-                    )}
-                  </>
-                )}
-              </select>
-            </label>
-
-            {selectedUnavailable && !noneAvailable ? (
-              <p className="assign-outside-note">
-                Docente non disponibile in questa ora — assegna comunque?
-              </p>
-            ) : null}
-
-            <div className="assign-btns-row">
-              <button
-                type="button"
-                className={useComunque ? "btn-secondary" : "btn-primary"}
-                disabled={pending || !docenteId}
-                onClick={assign}
-              >
-                {useComunque ? "Assegna comunque" : "Assegna"}
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div className="actions-inline-end">
-            <span className="muted small">—</span>
-            {deleteBtn}
-          </div>
-        )}
-
+        {body}
         {slot.assignment_status === "pending" &&
           slot.visa_status === "approved" &&
           slot.confirm_deadline && (
