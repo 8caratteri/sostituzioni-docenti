@@ -29,8 +29,10 @@ Google Workspace: imposta `AUTH_GOOGLE_ID` / `AUTH_GOOGLE_SECRET` (opzionale).
 
 ## Dati
 
-SQLite in `data/sostituzioni.sqlite` (creato al primo avvio con dati di prova).
+SQLite in `data/sostituzioni.sqlite` (creato al primo avvio con dati di prova).  
+In produzione: `SQLITE_PATH=/data/sostituzioni.sqlite` (volume Railway su `/data`).
 
-## GitHub
+## Hosting (Europa)
 
-Repository locale su `main`. Per un archivio permanente: **Create repo** dalla vista agente Cursor (nessun remote ancora).
+Vedi guida: volume `/data`, env `AUTH_*` / `SQLITE_PATH`, Deploy from GitHub → Railway.  
+File pronti: `Dockerfile`, `railway.toml`, `.env.example`.
