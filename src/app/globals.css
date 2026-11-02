@@ -1082,17 +1082,73 @@ textarea:focus {
   }
 }
 
-/* ——— Plessi / docenti grids ——— */
-.plessi-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.85rem;
+/* ——— Shared mgmt toolbar (align with Disponibilità) ——— */
+.mgmt-toolbar {
+  margin-bottom: 1.15rem;
+  padding: 0.9rem 1rem;
 }
 
+.mgmt-toolbar-title {
+  font-weight: 650;
+  font-size: 0.95rem;
+  color: var(--ink-soft);
+  margin-bottom: 0.55rem;
+}
+
+.mgmt-toolbar-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem 0.75rem;
+  align-items: end;
+}
+
+.mgmt-toolbar-row label {
+  display: grid;
+  gap: 0.25rem;
+  font-weight: 650;
+  font-size: 0.86rem;
+  color: var(--ink-soft);
+  min-width: 10rem;
+  flex: 1 1 10rem;
+}
+
+.mgmt-toolbar-row label.mgmt-grow {
+  flex: 1 1 14rem;
+}
+
+.mgmt-toolbar-row input,
+.mgmt-toolbar-row select {
+  width: 100%;
+  min-height: 2.35rem;
+}
+
+.mgmt-toolbar-action {
+  display: flex;
+  align-items: end;
+  padding-bottom: 1px;
+}
+
+.mgmt-toolbar-action .btn-primary,
+.mgmt-toolbar-action .btn-secondary {
+  white-space: nowrap;
+  min-height: 2.35rem;
+}
+
+/* ——— Plessi / docenti grids ——— */
+.plessi-grid,
 .docenti-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.85rem;
+}
+
+.plesso-card,
+.docente-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  padding: 0.85rem 0.95rem;
+  min-width: 0;
 }
 
 .plesso-card-head,
@@ -1101,12 +1157,17 @@ textarea:focus {
   justify-content: space-between;
   align-items: flex-start;
   gap: 0.65rem;
-  margin-bottom: 0.55rem;
+  margin-bottom: 0;
+}
+
+.docente-card-identity {
+  min-width: 0;
 }
 
 .docente-scheda-link {
   color: inherit;
   text-decoration: none;
+  word-break: break-word;
 }
 
 .docente-scheda-link:hover {
@@ -1120,6 +1181,7 @@ textarea:focus {
   flex-wrap: wrap;
   gap: 0.45rem;
   align-items: end;
+  margin-top: auto;
 }
 
 .inline-recupero label {
@@ -1132,14 +1194,16 @@ textarea:focus {
 
 .inline-recupero input[type="number"] {
   width: 4.5rem;
+  min-height: 2.15rem;
 }
 
 .classe-list {
   list-style: none;
   padding: 0;
-  margin: 0 0 0.75rem;
+  margin: 0;
   display: grid;
-  gap: 0.35rem;
+  gap: 0.2rem;
+  flex: 1;
 }
 
 .classe-list li {
@@ -1147,13 +1211,39 @@ textarea:focus {
   justify-content: space-between;
   align-items: center;
   gap: 0.55rem;
-  padding: 0.3rem 0.15rem 0.3rem 0;
+  padding: 0.28rem 0.1rem;
   border-bottom: 1px solid var(--line-soft);
+  font-size: 0.9rem;
+}
+
+.classe-list li.classe-empty {
+  border-bottom: none;
+  justify-content: flex-start;
+  padding-left: 0;
 }
 
 .plesso-card-form {
-  display: grid;
-  gap: 0.45rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+  margin-top: auto;
+}
+
+.plesso-card-form input[name="name"] {
+  flex: 1 1 5.5rem;
+  min-width: 0;
+  min-height: 2.15rem;
+}
+
+.plesso-card-form select {
+  flex: 0 1 7.5rem;
+  min-height: 2.15rem;
+}
+
+.plesso-card-form .btn-primary {
+  flex: 0 0 auto;
+  min-height: 2.15rem;
 }
 
 /* ——— Empty candidati / Azioni panel (CPIA-67) ——— */
@@ -1223,18 +1313,120 @@ textarea:focus {
 }
 
 @media (max-width: 1100px) {
+  .plessi-grid,
   .docenti-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 900px) {
+  .assign-panel {
+    max-width: none;
+  }
+
+  .staff-nav,
+  .docente-nav {
+    padding: 0.75rem 1rem;
+    gap: 0.65rem;
+  }
+
+  .staff-nav-links,
+  .docente-nav-links {
+    width: 100%;
+    order: 3;
+  }
+
+  .staff-nav-links a,
+  .docente-nav-links a {
+    padding: 0.45rem 0.7rem;
+    min-height: 2.4rem;
+    display: inline-flex;
+    align-items: center;
+  }
+}
+
+/* Phone (~375px): Docenti + Plessi 1 col, forms stack, touch targets */
+@media (max-width: 700px) {
   .plessi-grid,
   .docenti-grid {
     grid-template-columns: 1fr;
   }
 
+  .mgmt-toolbar-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .mgmt-toolbar-row label,
+  .mgmt-toolbar-row label.mgmt-grow {
+    min-width: 0;
+    flex: 1 1 auto;
+    width: 100%;
+  }
+
+  .mgmt-toolbar-action {
+    width: 100%;
+  }
+
+  .mgmt-toolbar-action .btn-primary,
+  .mgmt-toolbar-action .btn-secondary {
+    width: 100%;
+  }
+
+  .plesso-card-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .plesso-card-form input[name="name"],
+  .plesso-card-form select,
+  .plesso-card-form .btn-primary {
+    width: 100%;
+    flex: 1 1 auto;
+  }
+
+  .inline-recupero {
+    width: 100%;
+  }
+
+  .inline-recupero .btn-secondary {
+    min-height: 2.35rem;
+  }
+
+  .btn-primary,
+  .btn-secondary,
+  .btn-danger {
+    min-height: 2.45rem;
+  }
+
+  .slot-table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .actions-elenco,
   .assign-panel {
+    min-width: 0;
     max-width: none;
+  }
+
+  .assign-btns-row .btn-primary,
+  .assign-btns-row .btn-secondary {
+    min-width: 0;
+    flex: 1 1 100%;
+  }
+
+  .disp-strip-grid {
+    min-width: 22rem;
+  }
+
+  .nuovo-layout {
+    grid-template-columns: 1fr;
+  }
+
+  main {
+    padding: 1rem 0.85rem 2.25rem;
+    overflow-x: hidden;
   }
 }

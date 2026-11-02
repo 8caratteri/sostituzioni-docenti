@@ -25,15 +25,24 @@ export default async function ClassiPage() {
         <Link href="/admin">Torna all&apos;elenco</Link>
       </p>
       <h1>Plessi e classi</h1>
-      <form action={actionAddSede} className="card plesso-add-card form-grid">
-        <h2>Nuovo plesso</h2>
-        <label>
-          Nome
-          <input name="name" required placeholder="es. Aulla" />
-        </label>
-        <button type="submit" className="btn-primary">
-          Aggiungi plesso
-        </button>
+      <p className="page-lead">
+        Le classi stanno sotto ciascun plesso. Aulla è un solo plesso: Mattina e
+        Pomeriggio sono classi, non plessi separati.
+      </p>
+
+      <form action={actionAddSede} className="mgmt-toolbar card">
+        <div className="mgmt-toolbar-title">Nuovo plesso</div>
+        <div className="mgmt-toolbar-row">
+          <label className="mgmt-grow">
+            Nome
+            <input name="name" required placeholder="es. Aulla" />
+          </label>
+          <div className="mgmt-toolbar-action">
+            <button type="submit" className="btn-primary">
+              Aggiungi plesso
+            </button>
+          </div>
+        </div>
       </form>
 
       <div className="plessi-grid">
@@ -51,10 +60,15 @@ export default async function ClassiPage() {
                 />
               </div>
               <ul className="classe-list">
+                {cs.length === 0 && (
+                  <li className="classe-empty muted small">Nessuna classe</li>
+                )}
                 {cs.map((c) => (
                   <li key={c.id}>
-                    {c.name}{" "}
-                    <span className="muted tiny">({c.fascia})</span>
+                    <span>
+                      {c.name}{" "}
+                      <span className="muted tiny">({c.fascia})</span>
+                    </span>
                     <ConfirmDelete
                       action={actionDeleteClasse}
                       hiddenFields={{ id: c.id }}
@@ -67,7 +81,7 @@ export default async function ClassiPage() {
               <form action={actionAddClasse} className="plesso-card-form">
                 <input type="hidden" name="sede_id" value={s.id} />
                 <input name="name" placeholder="Classe" required />
-                <select name="fascia" defaultValue="mattina">
+                <select name="fascia" defaultValue="mattina" aria-label="Fascia">
                   <option value="mattina">Mattina</option>
                   <option value="pomeriggio">Pomeriggio</option>
                 </select>

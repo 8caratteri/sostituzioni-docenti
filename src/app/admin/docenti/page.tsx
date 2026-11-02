@@ -27,26 +27,35 @@ export default async function DocentiPage() {
         <Link href="/admin">Torna all&apos;elenco</Link>
       </p>
       <h1>Docenti</h1>
-      <form action={actionAddDocente} className="form-grid card">
-        <h2>Nuovo docente</h2>
-        <label>
-          Nome
-          <input name="name" required />
-        </label>
-        <label>
-          Email
-          <input name="email" type="email" />
-        </label>
-        <button type="submit" className="btn-primary">
-          Aggiungi
-        </button>
+      <p className="page-lead">
+        Aggiungi docenti e aggiorna le ore di recupero. Apri la scheda per
+        vedere le ore assegnate.
+      </p>
+
+      <form action={actionAddDocente} className="mgmt-toolbar card">
+        <div className="mgmt-toolbar-title">Nuovo docente</div>
+        <div className="mgmt-toolbar-row">
+          <label>
+            Nome
+            <input name="name" required placeholder="Cognome Nome" />
+          </label>
+          <label>
+            Email
+            <input name="email" type="email" placeholder="opzionale" />
+          </label>
+          <div className="mgmt-toolbar-action">
+            <button type="submit" className="btn-primary">
+              Aggiungi
+            </button>
+          </div>
+        </div>
       </form>
 
       <div className="docenti-grid">
         {docenti.map((d) => (
           <div key={d.id} className="card docente-card">
             <div className="docente-card-head">
-              <div>
+              <div className="docente-card-identity">
                 <Link
                   href={`/admin/docenti/${d.id}`}
                   className="docente-scheda-link"
