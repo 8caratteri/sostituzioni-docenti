@@ -1,0 +1,15 @@
+node_modules
+.next
+.git
+.gitignore
+*.md
+!README.md
+.env
+.env.*
+!.env.example
+data/*.sqlite
+data/*.sqlite-*
+coverage
+.vercel
+*.log
+.DS_Store

@@ -1,0 +1,12 @@
+# Deploy from GitHub → Railway. Volume obbligatorio montato su /data.
+# Regione: scegliere EU nel progetto Railway (Massimo).
+
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+healthcheckPath = "/login"
+healthcheckTimeout = 60
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 5

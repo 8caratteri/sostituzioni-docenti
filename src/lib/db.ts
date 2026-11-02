@@ -2,8 +2,11 @@ import Database from "better-sqlite3";
 import fs from "fs";
 import path from "path";
 
-const dataDir = path.join(process.cwd(), "data");
-const dbPath = path.join(dataDir, "sostituzioni.sqlite");
+/** Produzione Railway: SQLITE_PATH=/data/sostituzioni.sqlite (volume su /data). */
+const dbPath = process.env.SQLITE_PATH
+  ? path.resolve(process.env.SQLITE_PATH)
+  : path.join(process.cwd(), "data", "sostituzioni.sqlite");
+const dataDir = path.dirname(dbPath);
 
 let _db: Database.Database | null = null;
 
