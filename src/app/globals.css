@@ -248,7 +248,7 @@ h2 {
 
 .slot-table {
   width: 100%;
-  table-layout: auto;
+  table-layout: fixed; /* colonne stabili libero ↔ assegnato */
   border-collapse: separate;
   border-spacing: 0;
   background: var(--surface);
@@ -276,64 +276,38 @@ h2 {
   border-bottom: 1px solid var(--line);
 }
 
-/* Colonne dati: fit al contenuto (non % gonfi), con min-width comoda a sinistra */
-.slot-table col.col-fit {
-  width: 1%;
-}
-
-.slot-table col.col-azioni {
-  width: auto;
-}
-
+/* Celle dati: non espandono la colonna al cambio contenuto */
 .slot-table th:not(.th-azioni),
 .slot-table td.td-fit {
-  width: 1%;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   padding-left: 0.65rem;
   padding-right: 0.65rem;
 }
 
-/* Via di mezzo: aria a sinistra senza tornare ai % larghi */
 .slot-table th:nth-child(1),
 .slot-table td.td-fit:nth-child(1) {
-  min-width: 6.75rem; /* DATA */
   padding-left: 0.85rem;
-}
-
-.slot-table th:nth-child(2),
-.slot-table td.td-fit:nth-child(2) {
-  min-width: 6.5rem; /* ORA */
-}
-
-.slot-table th:nth-child(3),
-.slot-table td.td-fit:nth-child(3) {
-  min-width: 5.75rem; /* CLASSE */
-}
-
-.slot-table th:nth-child(4),
-.slot-table td.td-fit:nth-child(4) {
-  min-width: 5.25rem; /* PLESSO */
-}
-
-.slot-table th:nth-child(5),
-.slot-table td.td-fit:nth-child(5) {
-  min-width: 6.25rem; /* € */
-}
-
-.slot-table th:nth-child(8),
-.slot-table td.td-fit:nth-child(8) {
-  min-width: 5.5rem; /* DOCENTE */
 }
 
 .slot-table th.th-azioni,
 .slot-table td.td-azioni {
-  width: 99%;
+  overflow: visible; /* × / box Azioni non tagliati */
   padding-left: 0.75rem;
   padding-right: 0.85rem;
 }
 
 .slot-table td.td-fit .note-sub {
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.slot-table td.td-fit .badge {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .slot-table tbody tr {
