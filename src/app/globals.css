@@ -289,15 +289,15 @@ h2 {
 .slot-table td.td-fit {
   width: 1%;
   white-space: nowrap;
-  padding-left: 0.5rem;
-  padding-right: 0.5rem;
+  padding-left: 0.4rem;
+  padding-right: 0.4rem;
 }
 
 .slot-table th.th-azioni,
 .slot-table td.td-azioni {
-  width: auto;
-  padding-left: 0.65rem;
-  padding-right: 0.75rem;
+  width: 99%;
+  padding-left: 0.55rem;
+  padding-right: 0.65rem;
 }
 
 .slot-table td.td-fit .note-sub {
@@ -469,8 +469,9 @@ h2 {
 /* Azioni: × alto/destro. Boxed solo per assegna/nessun disponibile. */
 .azioni-panel {
   position: relative;
-  min-width: min(100%, 16.5rem);
-  max-width: 24rem;
+  width: 100%;
+  max-width: none;
+  min-width: 0;
 }
 
 .azioni-panel--boxed {
@@ -837,7 +838,7 @@ textarea:focus {
 .azioni-panel--flat .assigned-actions .btn-secondary {
   min-height: 2.35rem;
   width: 100%;
-  max-width: 16rem;
+  max-width: none;
   text-align: center;
 }
 
