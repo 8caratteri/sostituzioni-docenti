@@ -58,6 +58,16 @@ export function SlotActions({
   const selectedUnavailable = !!selected && !selected.available;
   const useComunque = noneAvailable || selectedUnavailable;
 
+  /** Solo lo stato assegna / nessun disponibile ha il contenitore bordato. */
+  const showAssignUi =
+    canAssign &&
+    !hasActive &&
+    !lockedConfirmed &&
+    slot.visa_status !== "rejected";
+  const panelClass = showAssignUi
+    ? "azioni-panel azioni-panel--boxed"
+    : "azioni-panel azioni-panel--flat";
+
   function assign() {
     if (!docenteId) return;
     const fd = new FormData();
@@ -217,7 +227,7 @@ export function SlotActions({
   }
 
   return (
-    <div className="azioni-box">
+    <div className={panelClass}>
       {deleteBtn}
       <div className="azioni-content">
         {(slot.last_refuse_motivo || slot.refuse_motivo) && (
