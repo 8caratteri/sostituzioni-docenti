@@ -35,6 +35,9 @@ primary_region = "ams"
     method = "GET"
     path = "/login"
 
+# source = NOME volume Fly (fly volumes list). Non usare "data" se il volume
+# si chiama sostituzioni_data → errore: can't update attached volume … by 'data'.
+# destination = path ASSOLUTO nel container: "/data" (mai "data" senza slash).
 [[mounts]]
   source = "sostituzioni_data"
   destination = "/data"
