@@ -276,7 +276,7 @@ h2 {
   border-bottom: 1px solid var(--line);
 }
 
-/* Colonne dati: larghezza minima al contenuto; Azioni prende il resto */
+/* Colonne dati: fit al contenuto (non % gonfi), con min-width comoda a sinistra */
 .slot-table col.col-fit {
   width: 1%;
 }
@@ -289,15 +289,47 @@ h2 {
 .slot-table td.td-fit {
   width: 1%;
   white-space: nowrap;
-  padding-left: 0.4rem;
-  padding-right: 0.4rem;
+  padding-left: 0.65rem;
+  padding-right: 0.65rem;
+}
+
+/* Via di mezzo: aria a sinistra senza tornare ai % larghi */
+.slot-table th:nth-child(1),
+.slot-table td.td-fit:nth-child(1) {
+  min-width: 6.75rem; /* DATA */
+  padding-left: 0.85rem;
+}
+
+.slot-table th:nth-child(2),
+.slot-table td.td-fit:nth-child(2) {
+  min-width: 6.5rem; /* ORA */
+}
+
+.slot-table th:nth-child(3),
+.slot-table td.td-fit:nth-child(3) {
+  min-width: 5.75rem; /* CLASSE */
+}
+
+.slot-table th:nth-child(4),
+.slot-table td.td-fit:nth-child(4) {
+  min-width: 5.25rem; /* PLESSO */
+}
+
+.slot-table th:nth-child(5),
+.slot-table td.td-fit:nth-child(5) {
+  min-width: 6.25rem; /* € */
+}
+
+.slot-table th:nth-child(8),
+.slot-table td.td-fit:nth-child(8) {
+  min-width: 5.5rem; /* DOCENTE */
 }
 
 .slot-table th.th-azioni,
 .slot-table td.td-azioni {
   width: 99%;
-  padding-left: 0.55rem;
-  padding-right: 0.65rem;
+  padding-left: 0.75rem;
+  padding-right: 0.85rem;
 }
 
 .slot-table td.td-fit .note-sub {
