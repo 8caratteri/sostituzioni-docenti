@@ -1,0 +1,48 @@
+# Fly.io — Amsterdam (ams). Volume persistente su /data per SQLite.
+# NON fare deploy finché Massimo non dà ok esplicito (account + via libera).
+#
+# Dopo ok tipico:
+#   fly auth login
+#   fly apps create sostituzioni-docenti --org personal
+#   fly volumes create sostituzioni_data --region ams --size 1
+#   fly secrets set AUTH_SECRET=… AUTH_URL=https://sostituzioni-docenti.fly.dev
+#   fly deploy
+
+app = "sostituzioni-docenti"
+primary_region = "ams"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  PORT = "3000"
+  HOSTNAME = "0.0.0.0"
+  NODE_ENV = "production"
+  SQLITE_PATH = "/data/sostituzioni.sqlite"
+  AUTH_DEMO_MODE = "true"
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 1
+  processes = ["app"]
+
+  [[http_service.checks]]
+    interval = "20s"
+    timeout = "5s"
+    grace_period = "45s"
+    method = "GET"
+    path = "/login"
+
+# Disco persistente EU — creato con: fly volumes create sostituzioni_data --region ams --size 1
+[[mounts]]
+  source = "sostituzioni_data"
+  destination = "/data"
+  initial_size = "1gb"
+
+[[vm]]
+  memory = "512mb"
+  cpu_kind = "shared"
+  cpus = 1

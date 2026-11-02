@@ -1,4 +1,5 @@
-# CPIA sostituzioni — build per Railway (volume SQLite su /data)
+# CPIA sostituzioni — Docker per Fly.io (ams) / Railway
+# Volume SQLite: montare /data e SQLITE_PATH=/data/sostituzioni.sqlite
 FROM node:22-bookworm-slim AS base
 WORKDIR /app
 RUN apt-get update \
@@ -30,9 +31,7 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/next.config.ts ./
 COPY --from=builder /app/package.json ./
 
-RUN mkdir -p /data \
-  && chown -R node:node /data /app
-
-USER node
+# Root: i volume Fly su /data sono root-owned; serve scrittura SQLite.
+RUN mkdir -p /data
 EXPOSE 3000
 CMD ["npm", "start"]

@@ -34,5 +34,6 @@ In produzione: `SQLITE_PATH=/data/sostituzioni.sqlite` (volume Railway su `/data
 
 ## Hosting (Europa)
 
-Vedi guida: volume `/data`, env `AUTH_*` / `SQLITE_PATH`, Deploy from GitHub → Railway.  
-File pronti: `Dockerfile`, `railway.toml`, `.env.example`.
+Percorso attuale: **Fly.io Amsterdam** (`fly.toml`, volume `/data`).  
+File: `Dockerfile`, `fly.toml`, `railway.toml` (fallback), `.env.example`.  
+Deploy solo dopo ok Massimo — dettagli in docs hosting.
