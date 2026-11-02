@@ -53,15 +53,15 @@ export default async function AdminSlotsPage() {
           <h2 className="month-title">{g.label}</h2>
           <table className="slot-table">
             <colgroup>
-              <col style={{ width: "12%" }} />
-              <col style={{ width: "10%" }} />
-              <col style={{ width: "10%" }} />
-              <col style={{ width: "10%" }} />
-              <col style={{ width: "9%" }} />
-              <col style={{ width: "11%" }} />
-              <col style={{ width: "12%" }} />
-              <col style={{ width: "10%" }} />
-              <col style={{ width: "16%" }} />
+              <col className="col-fit" />
+              <col className="col-fit" />
+              <col className="col-fit" />
+              <col className="col-fit" />
+              <col className="col-fit" />
+              <col className="col-fit" />
+              <col className="col-fit" />
+              <col className="col-fit" />
+              <col className="col-azioni" />
             </colgroup>
             <thead>
               <tr>
@@ -73,7 +73,7 @@ export default async function AdminSlotsPage() {
                 <th>Visto</th>
                 <th>Stato</th>
                 <th>Docente</th>
-                <th>Azioni</th>
+                <th className="th-azioni">Azioni</th>
               </tr>
             </thead>
             <tbody>
@@ -90,28 +90,28 @@ export default async function AdminSlotsPage() {
                 const euro = effectiveImporto(s.importo_eur, s.is_recupero);
                 return (
                   <tr key={s.id}>
-                    <td>
+                    <td className="td-fit">
                       <DateIt date={s.date} />
                     </td>
-                    <td>
+                    <td className="td-fit">
                       {labelOra(s.ora)}
                       <span className="note-sub">
                         {formatTimeRange(s.start_time, s.end_time)}
                       </span>
                     </td>
-                    <td>
+                    <td className="td-fit">
                       {s.classe_name || "—"}
                       {s.note ? (
                         <span className="note-sub">{s.note}</span>
                       ) : null}
                     </td>
-                    <td>{s.sede_name || "—"}</td>
-                    <td>
+                    <td className="td-fit">{s.sede_name || "—"}</td>
+                    <td className="td-fit">
                       {s.is_recupero
                         ? "Recupero · 0 €"
                         : formatEuro(euro || s.importo_eur)}
                     </td>
-                    <td>
+                    <td className="td-fit">
                       <div className="visto-cell">
                         <VisaBadge status={s.visa_status} />
                         {showVisa && s.visa_status === "awaiting" && (
@@ -119,7 +119,7 @@ export default async function AdminSlotsPage() {
                         )}
                       </div>
                     </td>
-                    <td>
+                    <td className="td-fit">
                       <AssignmentBadge
                         status={s.assignment_status}
                         isUfficio={s.is_ufficio}
@@ -132,8 +132,8 @@ export default async function AdminSlotsPage() {
                         </span>
                       )}
                     </td>
-                    <td>{s.docente_name || "—"}</td>
-                    <td>
+                    <td className="td-fit">{s.docente_name || "—"}</td>
+                    <td className="td-azioni">
                       <SlotActions
                         slot={s}
                         candidati={candidati}

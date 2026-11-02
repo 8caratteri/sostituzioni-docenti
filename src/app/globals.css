@@ -248,6 +248,7 @@ h2 {
 
 .slot-table {
   width: 100%;
+  table-layout: auto;
   border-collapse: separate;
   border-spacing: 0;
   background: var(--surface);
@@ -259,7 +260,7 @@ h2 {
 
 .slot-table th,
 .slot-table td {
-  padding: 0.78rem 0.85rem;
+  padding: 0.7rem 0.55rem;
   border-bottom: 1px solid var(--line-soft);
   text-align: left;
   vertical-align: middle;
@@ -275,8 +276,32 @@ h2 {
   border-bottom: 1px solid var(--line);
 }
 
-.slot-table th:last-child {
-  text-align: left;
+/* Colonne dati: larghezza minima al contenuto; Azioni prende il resto */
+.slot-table col.col-fit {
+  width: 1%;
+}
+
+.slot-table col.col-azioni {
+  width: auto;
+}
+
+.slot-table th:not(.th-azioni),
+.slot-table td.td-fit {
+  width: 1%;
+  white-space: nowrap;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+.slot-table th.th-azioni,
+.slot-table td.td-azioni {
+  width: auto;
+  padding-left: 0.65rem;
+  padding-right: 0.75rem;
+}
+
+.slot-table td.td-fit .note-sub {
+  white-space: nowrap;
 }
 
 .slot-table tbody tr {
@@ -799,7 +824,8 @@ textarea:focus {
 
 /* ——— Azioni elenco ——— */
 .actions-elenco {
-  min-width: 280px;
+  min-width: 15rem;
+  width: 100%;
 }
 
 .assigned-actions {
