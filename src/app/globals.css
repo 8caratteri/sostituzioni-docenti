@@ -289,6 +289,17 @@ h2 {
 .slot-table th:nth-child(1),
 .slot-table td.td-fit:nth-child(1) {
   padding-left: 0.85rem;
+  /* DATA: mai tagliare l’anno (niente ellipsis) */
+  overflow: visible;
+  text-overflow: clip;
+}
+
+.slot-table td.td-fit:nth-child(1) .date-it,
+.slot-table td.td-fit:nth-child(1) .date-num,
+.slot-table td.td-fit:nth-child(1) .date-wd {
+  overflow: visible;
+  text-overflow: clip;
+  max-width: none;
 }
 
 .slot-table th.th-azioni,

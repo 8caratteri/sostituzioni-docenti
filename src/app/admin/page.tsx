@@ -53,8 +53,9 @@ export default async function AdminSlotsPage() {
           <h2 className="month-title">{g.label}</h2>
           <table className="slot-table">
             <colgroup>
-              {/* Larghezze fisse: non saltano tra libero ↔ assegnato */}
-              <col className="col-data" style={{ width: "8%" }} />
+              {/* Larghezze fisse: non saltano tra libero ↔ assegnato.
+                  DATA ≥ giorno+gg/mm/aaaa senza clip (~11%). */}
+              <col className="col-data" style={{ width: "11%" }} />
               <col className="col-ora" style={{ width: "8%" }} />
               <col className="col-classe" style={{ width: "7%" }} />
               <col className="col-plesso" style={{ width: "7%" }} />
@@ -62,7 +63,7 @@ export default async function AdminSlotsPage() {
               <col className="col-visto" style={{ width: "11%" }} />
               <col className="col-stato" style={{ width: "13%" }} />
               <col className="col-docente" style={{ width: "9%" }} />
-              <col className="col-azioni" style={{ width: "28%" }} />
+              <col className="col-azioni" style={{ width: "25%" }} />
             </colgroup>
             <thead>
               <tr>
