@@ -1,5 +1,8 @@
-# CPIA sostituzioni — Docker per Fly.io (ams) / Railway
-# Volume SQLite: montare /data e SQLITE_PATH=/data/sostituzioni.sqlite
+# CPIA sostituzioni — Next.js 15 + SQLite (Fly ams / Railway)
+# IMPORTANTE: usare QUESTO file. Il Dockerfile generato da `fly launch`
+# (Node template con /app/dbsetup.js) è SBAGLIATO per questa app.
+#
+# Volume: montare /data ; SQLITE_PATH=/data/sostituzioni.sqlite
 FROM node:22-bookworm-slim AS base
 WORKDIR /app
 RUN apt-get update \
@@ -31,9 +34,10 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/next.config.ts ./
 COPY --from=builder /app/package.json ./
 
-# Root: i volume Fly su /data sono root-owned; serve scrittura SQLite.
-# Se il mount manca, meglio fallire in modo chiaro a runtime (SQLITE_PATH).
-RUN mkdir -p /data
+# Nessun dbsetup.js — avvio solo Next.
+RUN mkdir -p /data \
+  && test ! -e /app/dbsetup.js
+
 EXPOSE 3000
-# next start legge PORT; HOSTNAME=0.0.0.0 è obbligatorio in container
-CMD ["npm", "start"]
+# Explicit: bind 0.0.0.0 (richiesto dal proxy Fly). Niente shell npm script.
+CMD ["./node_modules/.bin/next", "start", "--hostname", "0.0.0.0", "--port", "3000"]

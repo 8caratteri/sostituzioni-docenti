@@ -1,13 +1,15 @@
 # Fly.io — Amsterdam. Volume SQLite su /data.
-# Merge con tipico `fly launch`: http_service + mounts + VM 1GB.
-# Volume OBBLIGATORIO prima/insieme al deploy, altrimenti le machine
-# non partono → "Proxy not finding machines".
+# Usare SEMPRE il Dockerfile del repo (Next start 0.0.0.0).
+# NON usare l’immagine/`Dockerfile` generato da `fly launch` (cerca dbsetup.js).
+# Volume OBBLIGATORIO (sostituzioni_data → /data) o le machine non partono.
+# Manutenzione IAD Fly ≠ causa app: primary_region = ams.
 
 app = "sostituzioni-docenti"
 primary_region = "ams"
 
 [build]
   dockerfile = "Dockerfile"
+  ignorefile = ".dockerignore"
 
 [env]
   PORT = "3000"
