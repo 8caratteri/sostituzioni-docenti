@@ -1,22 +1,47 @@
+import Link from "next/link";
+import { auth } from "@/lib/auth";
+import { DateIt } from "@/components/DateIt";
+import { MarkNavSeen } from "@/components/MarkNavSeen";
 import { SlotActions } from "@/components/SlotActions";
 import { AssignmentBadge, VisaBadge } from "@/components/StatusBadges";
+import { VisaActions } from "@/components/VisaActions";
+import { listCandidatiForSlot } from "@/lib/candidati";
 import { formatEuro, formatTimeRange } from "@/lib/format";
 import { groupSlotsByMonth } from "@/lib/group";
-import { listAvailableTeachers, listSlots } from "@/lib/slots";
+import { effectiveImporto } from "@/lib/pagamento";
+import {
+  canAssign,
+  canCreateSlot,
+  canVisa,
+} from "@/lib/permissions";
+import { listProposteForSlot } from "@/lib/proposte";
+import { labelOra } from "@/lib/slot-time";
+import { listSlots } from "@/lib/slots";
 
 export default async function AdminSlotsPage() {
+  const session = await auth();
+  const role = session!.user!.role;
   const slots = listSlots();
-  const teachers = listAvailableTeachers();
   const groups = groupSlotsByMonth(slots);
+  const showAssign = canAssign(role);
+  const showCreate = canCreateSlot(role);
+  const showVisa = canVisa(role);
 
   return (
     <>
-      <h1>Elenco slot</h1>
+      <MarkNavSeen channel="elenco" />
+      <div className="row-between" style={{ alignItems: "center" }}>
+        <h1>Elenco slot</h1>
+        {showCreate && (
+          <Link href="/admin/nuovo" className="btn-primary">
+            Nuovo slot
+          </Link>
+        )}
+      </div>
       <p className="page-lead">
-        Gli slot creati dalla segreteria restano in attesa di visto. Dopo il
-        visto puoi assegnare un docente disponibile. Assegna / Rimuovi fino a 10
-        minuti prima; se assegni a meno di 2 ore dall&apos;inizio è
-        d&apos;ufficio (già confermato).
+        La vicepreside apre lo slot e assegna (o accetta una proposta). Il
+        dirigente dà il visto; solo dopo il docente può Accettare. I recuperi
+        non impegnano il budget.
       </p>
 
       {groups.length === 0 && (
@@ -27,12 +52,23 @@ export default async function AdminSlotsPage() {
         <section key={g.key} className="month-group">
           <h2 className="month-title">{g.label}</h2>
           <table className="slot-table">
+            <colgroup>
+              <col style={{ width: "12%" }} />
+              <col style={{ width: "10%" }} />
+              <col style={{ width: "10%" }} />
+              <col style={{ width: "10%" }} />
+              <col style={{ width: "9%" }} />
+              <col style={{ width: "11%" }} />
+              <col style={{ width: "12%" }} />
+              <col style={{ width: "10%" }} />
+              <col style={{ width: "16%" }} />
+            </colgroup>
             <thead>
               <tr>
                 <th>Data</th>
                 <th>Ora</th>
                 <th>Classe</th>
-                <th>Sede</th>
+                <th>Plesso</th>
                 <th>€</th>
                 <th>Visto</th>
                 <th>Stato</th>
@@ -41,31 +77,74 @@ export default async function AdminSlotsPage() {
               </tr>
             </thead>
             <tbody>
-              {g.slots.map((s) => (
-                <tr key={s.id}>
-                  <td>{s.date}</td>
-                  <td>{formatTimeRange(s.start_time, s.end_time)}</td>
-                  <td>
-                    {s.classe_name || "—"}
-                    {s.note ? <span className="note-sub">{s.note}</span> : null}
-                  </td>
-                  <td>{s.sede_name || "—"}</td>
-                  <td>{formatEuro(s.importo_eur)}</td>
-                  <td>
-                    <VisaBadge status={s.visa_status} />
-                  </td>
-                  <td>
-                    <AssignmentBadge
-                      status={s.assignment_status}
-                      isUfficio={s.is_ufficio}
-                    />
-                  </td>
-                  <td>{s.docente_name || "—"}</td>
-                  <td>
-                    <SlotActions slot={s} teachers={teachers} />
-                  </td>
-                </tr>
-              ))}
+              {g.slots.map((s) => {
+                const candidati = showAssign
+                  ? listCandidatiForSlot({
+                      sede_id: s.sede_id,
+                      fascia: s.fascia,
+                      date: s.date,
+                      ora: s.ora,
+                    })
+                  : [];
+                const proposte = showAssign ? listProposteForSlot(s.id) : [];
+                const euro = effectiveImporto(s.importo_eur, s.is_recupero);
+                return (
+                  <tr key={s.id}>
+                    <td>
+                      <DateIt date={s.date} />
+                    </td>
+                    <td>
+                      {labelOra(s.ora)}
+                      <span className="note-sub">
+                        {formatTimeRange(s.start_time, s.end_time)}
+                      </span>
+                    </td>
+                    <td>
+                      {s.classe_name || "—"}
+                      {s.note ? (
+                        <span className="note-sub">{s.note}</span>
+                      ) : null}
+                    </td>
+                    <td>{s.sede_name || "—"}</td>
+                    <td>
+                      {s.is_recupero
+                        ? "Recupero · 0 €"
+                        : formatEuro(euro || s.importo_eur)}
+                    </td>
+                    <td>
+                      <div className="visto-cell">
+                        <VisaBadge status={s.visa_status} />
+                        {showVisa && s.visa_status === "awaiting" && (
+                          <VisaActions slotId={s.id} />
+                        )}
+                      </div>
+                    </td>
+                    <td>
+                      <AssignmentBadge
+                        status={s.assignment_status}
+                        isUfficio={s.is_ufficio}
+                        isRecupero={s.is_recupero}
+                        visaStatus={s.visa_status}
+                      />
+                      {s.refuse_motivo && (
+                        <span className="note-sub">
+                          Motivo: {s.refuse_motivo}
+                        </span>
+                      )}
+                    </td>
+                    <td>{s.docente_name || "—"}</td>
+                    <td>
+                      <SlotActions
+                        slot={s}
+                        candidati={candidati}
+                        proposte={proposte}
+                        canAssign={showAssign}
+                        canDelete={showCreate}
+                      />
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </section>

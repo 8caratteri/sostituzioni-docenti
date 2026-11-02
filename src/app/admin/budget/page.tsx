@@ -1,9 +1,15 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { actionUpdateBudget } from "@/app/actions";
+import { auth } from "@/lib/auth";
 import { getBudgetSummary } from "@/lib/budget";
 import { formatEuro } from "@/lib/format";
+import { canManageBudget } from "@/lib/permissions";
 
 export default async function BudgetPage() {
+  const session = await auth();
+  if (!canManageBudget(session!.user!.role)) redirect("/admin");
+
   const b = getBudgetSummary();
 
   return (
@@ -13,8 +19,8 @@ export default async function BudgetPage() {
         <Link href="/admin">Torna all&apos;elenco</Link>
       </div>
       <p className="page-lead">
-        Il budget è un tetto in euro. Le assegnazioni in attesa o confermate
-        impegnano l&apos;importo; se rifiutate o scadute, torna disponibile.
+        Il budget è un tetto in euro. Le assegnazioni a pagamento impegnano
+        l&apos;importo; i recuperi valgono 0 € e non consumano budget.
       </p>
 
       <div className="budget-grid" style={{ marginBottom: "1.25rem" }}>

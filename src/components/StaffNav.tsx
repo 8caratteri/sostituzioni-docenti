@@ -1,14 +1,33 @@
 import Link from "next/link";
 import { signOut } from "@/lib/auth";
+import {
+  canCreateSlot,
+  canManageBudget,
+  canManageClassi,
+  canManageDisponibilita,
+  canManageTeachers,
+  canExport,
+  roleLabel,
+} from "@/lib/permissions";
 import type { SessionUser } from "@/lib/types";
+
+function Badge({ n }: { n: number }) {
+  if (n <= 0) return null;
+  return <span className="nav-badge">{n > 99 ? "99+" : n}</span>;
+}
 
 export function StaffNav({
   user,
-  awaitingCount = 0,
+  badgeCount = 0,
 }: {
   user: SessionUser;
-  awaitingCount?: number;
+  badgeCount?: number;
 }) {
+  const elencoBadge =
+    user.role === "vicepreside" || user.role === "dirigente"
+      ? badgeCount
+      : 0;
+
   return (
     <div className="app-chrome">
       <header className="staff-nav">
@@ -16,21 +35,31 @@ export function StaffNav({
           <Link href="/admin" className="brand-name">
             Sostituzioni
           </Link>
-          <span className="brand-sub">CPIA · staff</span>
+          <span className="brand-sub">CPIA · {roleLabel(user.role)}</span>
         </div>
         <nav className="staff-nav-links">
-          <Link href="/admin">Elenco slot</Link>
-          <Link href="/admin/budget">Budget e tariffe</Link>
-          <Link href="/admin/classi">Classi e sedi</Link>
-          <Link href="/admin/disponibilita">Disponibilità</Link>
-          <Link href="/admin/nuovo">Nuovo slot</Link>
-          {user.role === "dirigente" && (
-            <Link href="/admin/visto">
-              Da vistare
-              {awaitingCount > 0 ? ` (${awaitingCount})` : ""}
-            </Link>
+          <Link href="/admin">
+            Elenco
+            <Badge n={elencoBadge} />
+          </Link>
+          {canManageBudget(user.role) && (
+            <Link href="/admin/budget">Budget</Link>
           )}
-          <Link href="/api/export/excel">Esporta Excel</Link>
+          {canManageClassi(user.role) && (
+            <Link href="/admin/classi">Plessi/classi</Link>
+          )}
+          {canManageDisponibilita(user.role) && (
+            <Link href="/admin/disponibilita">Disponibilità</Link>
+          )}
+          {canManageTeachers(user.role) && (
+            <Link href="/admin/docenti">Docenti</Link>
+          )}
+          {canCreateSlot(user.role) && (
+            <Link href="/admin/nuovo">Nuovo slot</Link>
+          )}
+          {canExport(user.role) && (
+            <Link href="/api/export/excel">Esporta</Link>
+          )}
         </nav>
         <div className="staff-nav-right">
           <form

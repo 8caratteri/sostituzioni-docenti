@@ -1,65 +1,46 @@
 import Link from "next/link";
-import {
-  actionRemoveDisponibilita,
-  actionSetDisponibilita,
-} from "@/app/actions";
-import { ConfirmDelete } from "@/components/ConfirmDelete";
-import { listAllTeachersWithDisponibilita } from "@/lib/slots";
+import { redirect } from "next/navigation";
+import { DisponibilitaEditor } from "@/components/DisponibilitaEditor";
+import { auth } from "@/lib/auth";
+import { listDocenti, listSedi } from "@/lib/catalog";
+import { getDb } from "@/lib/db";
+import { getOreRecupero } from "@/lib/pagamento";
+import { canManageDisponibilita } from "@/lib/permissions";
 
 export default async function DisponibilitaPage() {
-  const teachers = listAllTeachersWithDisponibilita();
+  const session = await auth();
+  if (!session?.user || !canManageDisponibilita(session.user.role)) {
+    redirect("/admin");
+  }
+
+  const teachers = listDocenti().map((t) => ({
+    id: t.id,
+    name: t.name,
+    ore_recupero: getOreRecupero(t.id),
+  }));
+  const sedi = listSedi();
+  const cells = getDb()
+    .prepare(
+      `SELECT user_id, sede_id, fascia, weekday, ora FROM disponibilita_ore`
+    )
+    .all() as {
+    user_id: string;
+    sede_id: number;
+    fascia: "mattina" | "pomeriggio";
+    weekday: number;
+    ora: number;
+  }[];
 
   return (
     <>
-      <div className="row-between">
-        <h1>Disponibilità docenti</h1>
+      <p>
         <Link href="/admin">Torna all&apos;elenco</Link>
-      </div>
-      <p className="muted small">
-        Solo i docenti in questo elenco compaiono nel menu Assegna. Chi non ha
-        una disponibilità non può essere assegnato.
       </p>
-
-      <div className="list-stack">
-        {teachers.map((t) => (
-          <div key={t.id} className="card row-between">
-            <div>
-              <strong>{t.name}</strong>
-              <div className="muted small">{t.email}</div>
-              {t.disponibilita ? (
-                <div style={{ marginTop: "0.35rem" }}>{t.disponibilita}</div>
-              ) : (
-                <div className="muted small" style={{ marginTop: "0.35rem" }}>
-                  Non in elenco disponibilità
-                </div>
-              )}
-            </div>
-            <div style={{ display: "grid", gap: "0.4rem", justifyItems: "end" }}>
-              <form action={actionSetDisponibilita} className="inline-form">
-                <input type="hidden" name="user_id" value={t.id} />
-                <input
-                  type="text"
-                  name="label"
-                  placeholder="Es. Mattina · sedi centrali"
-                  defaultValue={t.disponibilita || ""}
-                  required
-                />
-                <button type="submit" className="btn-primary">
-                  {t.disponibilita ? "Aggiorna" : "Aggiungi"}
-                </button>
-              </form>
-              {t.disponibilita && (
-                <ConfirmDelete
-                  action={actionRemoveDisponibilita}
-                  hiddenFields={{ user_id: t.id }}
-                  title={`Togliere ${t.name} dalla disponibilità?`}
-                  confirmLabel="Rimuovi"
-                />
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
+      <h1>Disponibilità</h1>
+      <p className="page-lead">
+        Seleziona un docente e tocca le ore (1–5) per plesso e giorno.
+      </p>
+      <DisponibilitaEditor teachers={teachers} sedi={sedi} cells={cells} />
     </>
   );
 }

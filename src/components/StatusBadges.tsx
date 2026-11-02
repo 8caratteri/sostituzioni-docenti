@@ -13,20 +13,28 @@ export function VisaBadge({ status }: { status: VisaStatus }) {
 export function AssignmentBadge({
   status,
   isUfficio,
+  isRecupero,
+  visaStatus,
 }: {
   status: AssignmentStatus | null;
   isUfficio?: number | null;
+  isRecupero?: number | null;
+  visaStatus?: VisaStatus;
 }) {
   if (!status) {
     return <span className="badge badge-free">Libero</span>;
   }
   if (status === "pending") {
+    if (visaStatus === "awaiting") {
+      return <span className="badge badge-warn">Assegnato · attesa visto</span>;
+    }
     return <span className="badge badge-warn">In attesa docente</span>;
   }
   if (status === "confirmed") {
     return (
       <span className="badge badge-ok">
         {isUfficio ? "Confermato (d’ufficio)" : "Confermato"}
+        {isRecupero ? " · recupero" : ""}
       </span>
     );
   }

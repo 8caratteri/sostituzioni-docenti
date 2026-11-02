@@ -1,8 +1,9 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { StaffNav } from "@/components/StaffNav";
-import { isStaff, listAwaitingVisa } from "@/lib/slots";
 import { getDb } from "@/lib/db";
+import { navBadgeFor } from "@/lib/notifications";
+import { isStaff } from "@/lib/permissions";
 
 export default async function AdminLayout({
   children,
@@ -21,12 +22,11 @@ export default async function AdminLayout({
     role: session.user.role,
   };
 
-  const awaiting =
-    user.role === "dirigente" ? listAwaitingVisa().length : 0;
+  const badgeCount = navBadgeFor(user.role, user.id);
 
   return (
     <>
-      <StaffNav user={user} awaitingCount={awaiting} />
+      <StaffNav user={user} badgeCount={badgeCount} />
       <main>{children}</main>
     </>
   );

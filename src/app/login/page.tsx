@@ -1,12 +1,22 @@
 import { redirect } from "next/navigation";
-import { auth, getDemoUsers, signIn } from "@/lib/auth";
+import { auth, getDemoStaff } from "@/lib/auth";
+import { listDocenti } from "@/lib/catalog";
+import { getDb } from "@/lib/db";
+import { DemoLoginForm } from "@/components/DemoLoginForm";
 
 export default async function LoginPage() {
+  getDb();
   const session = await auth();
   if (session?.user) redirect("/");
 
   const demo = process.env.AUTH_DEMO_MODE !== "false";
-  const users = getDemoUsers();
+  const staff = getDemoStaff();
+  const docenti = listDocenti().map((d) => ({
+    id: d.id,
+    email: d.email,
+    name: d.name,
+    role: d.role,
+  }));
   const googleReady = !!(
     process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET
   );
@@ -20,48 +30,22 @@ export default async function LoginPage() {
           Accedi per gestire o confermare le ore di sostituzione.
         </p>
 
-        {demo && (
-          <>
-            <p className="small" style={{ marginTop: "1.15rem", fontWeight: 650 }}>
-              Modalità prova — scegli un utente:
-            </p>
-            <div className="demo-list">
-              {users.map((u) => (
-                <form
-                  key={u.id}
-                  action={async () => {
-                    "use server";
-                    await signIn("demo", {
-                      userId: u.id,
-                      redirectTo: "/",
-                    });
-                  }}
-                >
-                  <button type="submit">
-                    {u.name}
-                    <span className="role">
-                      {u.role === "segreteria"
-                        ? "Segreteria"
-                        : u.role === "dirigente"
-                          ? "Dirigente"
-                          : "Docente"}
-                    </span>
-                  </button>
-                </form>
-              ))}
-            </div>
-          </>
-        )}
+        {demo && <DemoLoginForm staff={staff} docenti={docenti} />}
 
         {googleReady && (
           <form
             action={async () => {
               "use server";
+              const { signIn } = await import("@/lib/auth");
               await signIn("google", { redirectTo: "/" });
             }}
             style={{ marginTop: "1rem" }}
           >
-            <button type="submit" className="btn-primary" style={{ width: "100%" }}>
+            <button
+              type="submit"
+              className="btn-primary"
+              style={{ width: "100%" }}
+            >
               Accedi con Google
             </button>
           </form>

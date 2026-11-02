@@ -12,10 +12,44 @@ export function formatEuro(value: number): string {
 
 export function formatDateIt(date: string): string {
   try {
-    return format(parseISO(date), "dd/MM/yyyy");
+    return format(parseISO(date.includes("T") ? date : date + "T12:00:00"), "dd/MM/yyyy");
   } catch {
     return date;
   }
+}
+
+/** Es. «lun 03/11/2026» — giorno settimana corto + data italiana. */
+export function formatDateItWithWeekday(date: string): string {
+  const { weekday, day } = formatDateItParts(date);
+  return weekday ? `${weekday} ${day}` : day;
+}
+
+/** Parti separate per UI (giorno settimana piccolo + data). */
+export function formatDateItParts(date: string): {
+  weekday: string;
+  day: string;
+} {
+  try {
+    const d = parseISO(date.includes("T") ? date : date + "T12:00:00");
+    const weekday = format(d, "EEE", { locale: it }).replace(/\.$/, "");
+    const day = format(d, "dd/MM/yyyy");
+    return { weekday, day };
+  } catch {
+    return { weekday: "", day: date };
+  }
+}
+
+/** Etichetta ora slot: «3ª ora» (+ eventuale contesto). */
+export function formatSlotOra(
+  startTime: string,
+  sedeName?: string | null,
+  classeName?: string | null,
+  ora?: number | null
+): string {
+  void sedeName;
+  void classeName;
+  if (ora && ora >= 1 && ora <= 5) return `${ora}ª ora`;
+  return startTime.slice(0, 5);
 }
 
 export function formatMonthYear(date: string): string {

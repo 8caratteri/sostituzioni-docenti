@@ -2,31 +2,32 @@
 
 import { useState, useTransition } from "react";
 
-type Props = {
-  action: (formData: FormData) => Promise<void>;
-  hiddenFields?: Record<string, string | number>;
-  label?: string;
-  title?: string;
-  confirmLabel?: string;
-};
-
 export function ConfirmDelete({
   action,
   hiddenFields = {},
   label = "×",
+  tooltip,
   title = "Eliminare?",
   confirmLabel = "Elimina",
-}: Props) {
+}: {
+  action: (formData: FormData) => Promise<void>;
+  hiddenFields?: Record<string, string | number>;
+  label?: string;
+  tooltip?: string;
+  title?: string;
+  confirmLabel?: string;
+}) {
   const [open, setOpen] = useState(false);
   const [pending, start] = useTransition();
+  const aria = tooltip || title || "Elimina";
 
   return (
     <>
       <button
         type="button"
         className="btn-x"
-        title="Elimina"
-        aria-label="Elimina"
+        title={aria}
+        aria-label={aria}
         onClick={() => setOpen(true)}
       >
         {label}

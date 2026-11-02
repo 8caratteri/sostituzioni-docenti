@@ -3,11 +3,11 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { getDb } from "@/lib/db";
 import { expireOverdueAssignments } from "@/lib/expire";
-import { isStaff } from "@/lib/slots";
+import { canExport } from "@/lib/permissions";
 
 export async function GET() {
   const session = await auth();
-  if (!session?.user || !isStaff(session.user.role)) {
+  if (!session?.user || !canExport(session.user.role)) {
     return NextResponse.json({ error: "Non autorizzato" }, { status: 401 });
   }
 
@@ -15,8 +15,9 @@ export async function GET() {
   const db = getDb();
   const rows = db
     .prepare(
-      `SELECT u.name AS docente, s.date, s.start_time, s.end_time,
-              s.classe_name, s.sede_name, s.importo_eur, a.status, a.is_ufficio
+      `SELECT u.name AS docente, s.date, s.start_time, s.end_time, s.ora,
+              s.classe_name, s.sede_name, s.importo_eur,
+              a.status, a.is_ufficio, a.is_recupero
        FROM assignments a
        JOIN slots s ON s.id = a.slot_id
        JOIN users u ON u.id = a.docente_id
@@ -28,11 +29,13 @@ export async function GET() {
     date: string;
     start_time: string;
     end_time: string;
+    ora: number;
     classe_name: string | null;
     sede_name: string | null;
     importo_eur: number;
     status: string;
     is_ufficio: number;
+    is_recupero: number;
   }>;
 
   const wb = new ExcelJS.Workbook();
@@ -42,10 +45,11 @@ export async function GET() {
   sheet.columns = [
     { header: "Docente", key: "docente", width: 22 },
     { header: "Data", key: "date", width: 12 },
+    { header: "Ora", key: "ora", width: 8 },
     { header: "Inizio", key: "start", width: 10 },
     { header: "Fine", key: "end", width: 10 },
     { header: "Classe", key: "classe", width: 14 },
-    { header: "Sede", key: "sede", width: 16 },
+    { header: "Plesso", key: "sede", width: 16 },
     { header: "Importo €", key: "importo", width: 12 },
     { header: "Tipo", key: "tipo", width: 14 },
   ];
@@ -56,18 +60,24 @@ export async function GET() {
   let grand = 0;
 
   for (const r of rows) {
+    const importo = r.is_recupero ? 0 : r.importo_eur;
     sheet.addRow({
       docente: r.docente,
       date: r.date,
+      ora: r.ora,
       start: r.start_time.slice(0, 5),
       end: r.end_time.slice(0, 5),
       classe: r.classe_name || "",
       sede: r.sede_name || "",
-      importo: r.importo_eur,
-      tipo: r.is_ufficio ? "d’ufficio" : "accettata",
+      importo,
+      tipo: r.is_recupero
+        ? "recupero"
+        : r.is_ufficio
+          ? "d’ufficio"
+          : "accettata",
     });
-    totals.set(r.docente, (totals.get(r.docente) || 0) + r.importo_eur);
-    grand += r.importo_eur;
+    totals.set(r.docente, (totals.get(r.docente) || 0) + importo);
+    grand += importo;
   }
 
   sheet.addRow({});
@@ -87,7 +97,7 @@ export async function GET() {
   });
   grandRow.font = { bold: true };
 
-  sheet.getColumn("importo").numFmt = '#,##0.00';
+  sheet.getColumn("importo").numFmt = "#,##0.00";
 
   const buffer = await wb.xlsx.writeBuffer();
   return new NextResponse(buffer, {

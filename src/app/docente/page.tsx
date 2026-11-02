@@ -1,6 +1,9 @@
 import { auth } from "@/lib/auth";
-import { actionTeacherRespond } from "@/app/actions";
+import { DateIt } from "@/components/DateIt";
+import { MarkNavSeen } from "@/components/MarkNavSeen";
+import { TeacherRespondForm } from "@/components/TeacherRespondForm";
 import { formatTimeRange } from "@/lib/format";
+import { labelOra } from "@/lib/slot-time";
 import { listTeacherAssignments } from "@/lib/slots";
 
 export default async function DocentePage() {
@@ -15,53 +18,50 @@ export default async function DocentePage() {
 
   return (
     <>
+      <MarkNavSeen channel="mie-ore" />
       <h1>Le mie ore</h1>
       <p className="page-lead">
-        Accetta entro 2 ore prima dell&apos;inizio. Se non accetti in tempo,
-        l&apos;assegnazione scade e lo slot torna libero.
+        Vedi subito le assegnazioni. Puoi Accettare o Rifiutare solo dopo il
+        visto del dirigente, entro 2 ore prima dell&apos;inizio.
       </p>
 
       <h2>Da confermare</h2>
       {pending.length === 0 && (
-        <p className="muted">Nessuna proposta in attesa.</p>
+        <p className="muted">Nessuna assegnazione in attesa.</p>
       )}
       <div className="list-stack">
-        {pending.map((r) => (
-          <div key={r.id} className="card">
-            <div style={{ fontWeight: 650 }}>
-              {r.date} · {formatTimeRange(r.start_time, r.end_time)} ·{" "}
-              {r.classe_name || "—"} · {r.sede_name || "—"}
-            </div>
-            {r.confirm_deadline && (
-              <div className="muted small">
-                Scade {new Date(r.confirm_deadline).toLocaleString("it-IT")}
+        {pending.map((r) => {
+          const waitingVisa = r.visa_status !== "approved";
+          const canAccept =
+            r.visa_status === "approved" && !r.is_ufficio;
+          return (
+            <div key={r.id} className="card">
+              <div style={{ fontWeight: 650 }}>
+                <DateIt date={r.date} /> · {labelOra(r.ora)} (
+                {formatTimeRange(r.start_time, r.end_time)}) ·{" "}
+                {r.classe_name || "—"} · {r.sede_name || "—"}
               </div>
-            )}
-            {r.is_ufficio ? (
-              <p className="small">Assegnazione d&apos;ufficio (già confermata).</p>
-            ) : (
-              <form action={actionTeacherRespond} className="form-actions">
-                <input type="hidden" name="assignment_id" value={r.id} />
-                <button
-                  type="submit"
-                  name="decision"
-                  value="accept"
-                  className="btn-primary"
-                >
-                  Accetta
-                </button>
-                <button
-                  type="submit"
-                  name="decision"
-                  value="refuse"
-                  className="btn-danger"
-                >
-                  Rifiuta
-                </button>
-              </form>
-            )}
-          </div>
-        ))}
+              {r.is_recupero ? (
+                <div className="muted small">Ora di recupero (0 €)</div>
+              ) : null}
+              {waitingVisa && (
+                <div className="badge badge-warn" style={{ marginTop: "0.4rem" }}>
+                  In attesa di visto
+                </div>
+              )}
+              {r.confirm_deadline && canAccept && (
+                <div className="muted small">
+                  Scade {new Date(r.confirm_deadline).toLocaleString("it-IT")}
+                </div>
+              )}
+              <TeacherRespondForm
+                assignmentId={r.id}
+                canAccept={canAccept}
+                waitingVisa={waitingVisa}
+              />
+            </div>
+          );
+        })}
       </div>
 
       <h2>Confermate</h2>
@@ -72,12 +72,13 @@ export default async function DocentePage() {
         {confirmed.map((r) => (
           <div key={r.id} className="card">
             <div style={{ fontWeight: 650 }}>
-              {r.date} · {formatTimeRange(r.start_time, r.end_time)} ·{" "}
+              <DateIt date={r.date} /> · {labelOra(r.ora)} ·{" "}
               {r.classe_name || "—"} · {r.sede_name || "—"}
             </div>
             <div style={{ marginTop: "0.35rem" }}>
               <span className="badge badge-ok">
                 {r.is_ufficio ? "Confermato (d’ufficio)" : "Confermato"}
+                {r.is_recupero ? " · recupero" : ""}
               </span>
             </div>
           </div>
@@ -91,12 +92,12 @@ export default async function DocentePage() {
             {past.map((r) => (
               <div key={r.id} className="card">
                 <div>
-                  {r.date} · {formatTimeRange(r.start_time, r.end_time)} ·{" "}
+                  <DateIt date={r.date} /> · {labelOra(r.ora)} ·{" "}
                   {r.classe_name || "—"}
                 </div>
                 <div className="muted small" style={{ marginTop: "0.25rem" }}>
                   {r.status === "refused"
-                    ? "Rifiutato"
+                    ? `Rifiutato${r.refuse_motivo ? `: ${r.refuse_motivo}` : ""}`
                     : r.status === "expired"
                       ? "Scaduto"
                       : "Annullato"}

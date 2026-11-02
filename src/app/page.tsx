@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
-import { isStaff } from "@/lib/slots";
+import { isStaff } from "@/lib/permissions";
 
 export default async function Home() {
   const session = await auth();

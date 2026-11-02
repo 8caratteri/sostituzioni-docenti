@@ -6,7 +6,7 @@ import type { Role, SessionUser } from "./types";
 
 const demoMode = process.env.AUTH_DEMO_MODE !== "false";
 
-const DEMO_USERS: SessionUser[] = [
+const DEMO_STAFF: SessionUser[] = [
   {
     id: "segreteria-demo",
     email: "segreteria@demo.local",
@@ -14,22 +14,16 @@ const DEMO_USERS: SessionUser[] = [
     role: "segreteria",
   },
   {
+    id: "vicepreside-demo",
+    email: "vicepreside@demo.local",
+    name: "Vicepreside Demo",
+    role: "vicepreside",
+  },
+  {
     id: "dirigente-demo",
     email: "dirigente@demo.local",
     name: "Dirigente Demo",
     role: "dirigente",
-  },
-  {
-    id: "maria-rossi",
-    email: "maria.rossi@demo.local",
-    name: "Maria Rossi",
-    role: "docente",
-  },
-  {
-    id: "luca-bianchi",
-    email: "luca.bianchi@demo.local",
-    name: "Luca Bianchi",
-    role: "docente",
   },
 ];
 
@@ -60,14 +54,18 @@ if (demoMode) {
       async authorize(credentials) {
         const userId = credentials?.userId as string | undefined;
         if (!userId) return null;
-        getDb(); // ensure seed
-        const demo = DEMO_USERS.find((u) => u.id === userId);
-        if (!demo) return null;
+        const db = getDb();
+        const row = db
+          .prepare(
+            `SELECT id, email, name, role FROM users WHERE id = ? AND active = 1`
+          )
+          .get(userId) as SessionUser | undefined;
+        if (!row) return null;
         return {
-          id: demo.id,
-          email: demo.email,
-          name: demo.name,
-          role: demo.role,
+          id: row.id,
+          email: row.email,
+          name: row.name,
+          role: row.role,
         };
       },
     })
@@ -132,8 +130,19 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   trustHost: true,
 });
 
+export function getDemoStaff() {
+  return DEMO_STAFF;
+}
+
+/** @deprecated use getDemoStaff + listDocenti */
 export function getDemoUsers() {
-  return DEMO_USERS;
+  getDb();
+  const docenti = getDb()
+    .prepare(
+      `SELECT id, email, name, role FROM users WHERE role = 'docente' AND active = 1 ORDER BY name`
+    )
+    .all() as SessionUser[];
+  return [...DEMO_STAFF, ...docenti];
 }
 
 export async function requireSession(): Promise<SessionUser> {

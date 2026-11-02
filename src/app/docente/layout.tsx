@@ -2,7 +2,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth, signOut } from "@/lib/auth";
 import { getDb } from "@/lib/db";
-import { isStaff } from "@/lib/slots";
+import { countDocenteBadge } from "@/lib/notifications";
+import { isStaff } from "@/lib/permissions";
 
 export default async function DocenteLayout({
   children,
@@ -13,6 +14,8 @@ export default async function DocenteLayout({
   const session = await auth();
   if (!session?.user) redirect("/login");
   if (isStaff(session.user.role)) redirect("/admin");
+
+  const badge = countDocenteBadge(session.user.id);
 
   return (
     <>
@@ -25,7 +28,12 @@ export default async function DocenteLayout({
             <span className="brand-sub">CPIA · docente</span>
           </div>
           <nav className="docente-nav-links">
-            <Link href="/docente">Le mie ore</Link>
+            <Link href="/docente">
+              Le mie ore
+              {badge > 0 && (
+                <span className="nav-badge">{badge > 99 ? "99+" : badge}</span>
+              )}
+            </Link>
             <Link href="/docente/aperti">Slot aperti</Link>
           </nav>
           <div className="docente-nav-right">
